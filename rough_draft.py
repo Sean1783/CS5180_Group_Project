@@ -64,14 +64,14 @@ tfidf_matrix = vectorizer.fit_transform(master_doc_list)
 terms = vectorizer.get_feature_names_out()
 
 # Unneeded if collection has already been created.
-# for doc_idx, url in enumerate(master_url_list):
-#     tfidf_scores = tfidf_matrix[doc_idx]  # TF-IDF scores for this document
-#     term_scores = zip(terms, tfidf_scores.toarray().flatten())
-#     for term, score in term_scores:
-#         if score > 0:  # Only store terms with non-zero TF-IDF scores
-#             if term not in inverted_dict:
-#                 inverted_dict[term] = []  # Initialize list for this term
-#             inverted_dict[term].append({'url': url, 'tfidf': score})
+for doc_idx, url in enumerate(master_url_list):
+    tfidf_scores = tfidf_matrix[doc_idx]  # TF-IDF scores for this document
+    term_scores = zip(terms, tfidf_scores.toarray().flatten())
+    for term, score in term_scores:
+        if score > 0:  # Only store terms with non-zero TF-IDF scores
+            if term not in inverted_dict:
+                inverted_dict[term] = []  # Initialize list for this term
+            inverted_dict[term].append({'url': url, 'tfidf': score})
 #
 # collection = db.inverted_index
 # for term, records in inverted_dict.items():
@@ -83,7 +83,7 @@ terms = vectorizer.get_feature_names_out()
 #     )
 
 
-query_string = "Salisbury"
+query_string = "swimming snowboarding"
 query_string = clean_text(query_string)
 vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 3))
 res = vectorizer.fit([query_string])  # Fit the query text
@@ -92,20 +92,20 @@ collection = db.inverted_index
 
 print(vectorizer.vocabulary_)
 
-# hits = dict()
-# for ngram in ngrams:
-#     result = collection.find_one({'term' : ngram})
-#     if result:
-#         term = result['term']
-#         for doc in result['records']:
-#             url = doc["url"]
-#             score = doc["tfidf"]
-#             if url in hits:
-#                 hits[url] += score
-#             else:
-#                 hits[url] = score
-#
-# print(hits)
+hits = dict()
+for ngram in ngrams:
+    result = collection.find_one({'term' : ngram})
+    if result:
+        term = result['term']
+        for doc in result['records']:
+            url = doc["url"]
+            score = doc["tfidf"]
+            if url in hits:
+                hits[url] += score
+            else:
+                hits[url] = score
+
+print(hits)
 
     # combined_text = " ".join(full_text)
     # vectorizer = CountVectorizer(analyzer='word', ngram_range=(1, 3))

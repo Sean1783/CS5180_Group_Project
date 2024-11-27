@@ -69,28 +69,36 @@ class Crawler:
             print(f"An unexpected error occurred: {e}" + some_url_link)
         return ""
 
+
     def is_department_page(self, link):
         return self.base_url in link
+
+
+    def insert_into_database(self, db_manager, link, page_html, is_target):
+        doc_obj = dict()
+        doc_obj['url'] = link
+        doc_obj['page_html'] = page_html
+        doc_obj['is_target'] = is_target
+        db_manager.insert_document(doc_obj)
 
     def crawl(self, seed_url, db_manager):
         base_frontier = self.generate_new_frontier_urls(seed_url)
         num_targets = 22
         targets_found = 0
+        visited_urls = set()
         while base_frontier:
             link = base_frontier.pop(0)
+            if link in visited_urls:
+                continue
+            visited_urls.add(link)
             is_target = self.is_target_link(link, self.target_url)
             is_department_page = self.is_department_page(link)
-            # Can use regex "/common/resources/css/css-2016" in html to identify target pages.
             if is_target:
                 targets_found += 1
             if is_target or is_department_page:
                 page_html = self.get_html(link)
                 if page_html:
-                    doc_obj = dict()
-                    doc_obj['url'] = link
-                    doc_obj['page_html'] = page_html
-                    doc_obj['is_target'] = is_target
-                    db_manager.insert_document(doc_obj)
+                    self.insert_into_database(db_manager, link, page_html, is_target)
             if targets_found == num_targets:
                 base_frontier.clear()
                 return
