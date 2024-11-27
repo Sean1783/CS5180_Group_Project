@@ -80,8 +80,7 @@ class Crawler:
             link = base_frontier.pop(0)
             is_target = self.is_target_link(link, self.target_url)
             is_department_page = self.is_department_page(link)
-
-            # Can use regex "/common/resources/css/css-2016" in html to find target pages.
+            # Can use regex "/common/resources/css/css-2016" in html to identify target pages.
             if is_target:
                 targets_found += 1
             if is_target or is_department_page:
@@ -99,3 +98,9 @@ class Crawler:
             for next_link in additional_frontier:
                 if next_link not in base_frontier:
                     base_frontier.append(next_link)
+
+
+    def is_target_page(self, link):
+        raw_html = self.get_html(link)
+        if raw_html:
+            pass

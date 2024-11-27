@@ -1,10 +1,13 @@
 from bs4 import BeautifulSoup
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
+from urllib.parse import urljoin
 import re
 
 
 class Parser:
 
-
+    # Not used for project.
     def extract_info(self, page_url, db_manager):
         content_string = db_manager.get_document_html(page_url)
         profile_info = list()
@@ -35,7 +38,7 @@ class Parser:
             return None
         return profile_info
 
-
+    # Not used for project.
     def extract_stats(self, p_tag):
         additional_details = p_tag.find_all('strong')
         current_profile = dict()
@@ -51,7 +54,7 @@ class Parser:
                 current_profile[key] = value
         return current_profile
 
-
+    # Not used for project.
     def alt_extract_email(self, current_obj):
         email_pattern = r'[a-zA-Z0-9._%+-]+@cpp\.edu'
         email = []
@@ -63,7 +66,7 @@ class Parser:
             print(e)
         return email
 
-
+    # Not used for project.
     def alt_extract_website(self, current_obj):
         website_pattern = r'https?'
         a_tags = current_obj.find_all('a', href=True)
@@ -74,7 +77,7 @@ class Parser:
                 websites.append(href)
         return websites
 
-
+    # Not used for project.
     def extract_email(self, current_obj):
         p_tag = current_obj.find('p')
         email_pattern = r'[a-zA-Z0-9._%+-]+@cpp\.edu'
@@ -87,7 +90,7 @@ class Parser:
             print(e)
         return email
 
-
+    # Not used for project.
     def extract_website(self, current_obj):
         website_pattern = r'https?'
         p_tag = current_obj.find('p')
@@ -98,3 +101,4 @@ class Parser:
             if re.match(website_pattern, href):
                 websites.append(href)
         return websites
+
