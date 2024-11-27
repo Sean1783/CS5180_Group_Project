@@ -12,7 +12,7 @@ class QueryProcessor:
         query_vector = vectorizer.fit([query_string])
         ngrams = vectorizer.get_feature_names_out()
 
-        db = connect_database()
+        db = connect_database('project_db')
         collection = db.v2_inverted_index
 
         hits = dict()

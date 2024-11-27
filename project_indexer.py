@@ -15,13 +15,16 @@ def clean_text(some_text):
     split_text = word_tokenize(some_text)
     stop_words = set(stopwords.words('english'))
     filtered_words = [word for word in split_text if word.lower() not in stop_words]
-    text = " ".join(filtered_words).lower()
+    # text = " ".join(filtered_words).lower()
+    text = " ".join(filtered_words).lower().strip()
+    # cleaned_string = re.sub(r'[^\w\s]', '', text)
     cleaned_string = re.sub(r'[^\w\s]', '', text)
+    cleaned_string = re.sub(r'\n', ' ', cleaned_string)
     return cleaned_string
 
 
-def connect_database():
-    DB_NAME = "project_db"
+def connect_database(database_name):
+    DB_NAME = database_name
     DB_HOST = "localhost"
     DB_PORT = 27017
     try:
@@ -33,30 +36,43 @@ def connect_database():
 
 
 class Indexer:
+    def __init__(self, database_name, corpus_collection_name, index_collection_name):
+        self.database_name = database_name
+        self.corpus_collection_name = corpus_collection_name
+        self.index_collection_name = index_collection_name
 
 
     def get_all_target_pages(self):
-        db = connect_database()
+        db = connect_database(self.database_name)
         collection = db.v2_test_pages
         corpus = collection.find({"is_target": True})
         return corpus
 
+    def get_doc_text(self, doc):
+        bs = BeautifulSoup(doc['page_html'], 'html.parser')
+        # Create one giant parsed and tokenized string for the entire doc.
+        fac_staff_div = bs.find('div', class_='fac-staff')  # Find the specific parent div
+        all_text = fac_staff_div.get_text(separator=' ', strip=True)  # Extract text with a separator for readability
+        return all_text
 
     # Grabs relevant text from pages.
-    # This will need data cleaning - clean '.', ',', etc.
     def create_master_doc_text_and_url_lists(self, corpus):
         master_doc_list = list()
         master_url_list = list()
         for document_obj in corpus:
             bs = BeautifulSoup(document_obj['page_html'], 'html.parser')
-            p_tags = bs.main.find_all('p')
-            # full_text = []
-            for element in p_tags:
-                cleaned_text = clean_text(element.text)
-                if len(cleaned_text) > 1:
-                    # full_text.append(cleaned_text)
-                    master_doc_list.append(cleaned_text)
-                    master_url_list.append(document_obj['url'])
+            # Create one giant parsed and tokenized string for the entire doc.
+            text = self.get_doc_text(document_obj)
+            cleaned_text = clean_text(text)
+            if len(cleaned_text) > 1:
+                master_doc_list.append(cleaned_text)
+                master_url_list.append(document_obj['url'])
+            # p_tags = bs.main.find_all('p')
+            # for element in p_tags:
+            #     cleaned_text = clean_text(element.text)
+            #     if len(cleaned_text) > 1:
+            #         master_doc_list.append(cleaned_text)
+            #         master_url_list.append(document_obj['url'])
         return master_doc_list, master_url_list
 
 
@@ -76,10 +92,11 @@ class Indexer:
         return inverted_dict
 
 
-    def create_db_inverted_index(self, inverted_dict):
-        db = connect_database()
+    def create_db_inverted_index(self, database_connection, inverted_dict):
+        # db = connect_database()
         # Need a better way to reference the correct collection.
-        collection = db.v2_inverted_index
+        # collection = database_connection.v2_inverted_index
+        collection = database_connection[self.index_collection_name]
         for term, records in inverted_dict.items():
             collection.update_one(
                 {'term': term},
@@ -92,4 +109,5 @@ class Indexer:
         corpus = self.get_all_target_pages()
         master_doc_list, master_url_list = self.create_master_doc_text_and_url_lists(corpus)
         inverted_dict = self.create_inverted_index(master_doc_list, master_url_list)
-        self.create_db_inverted_index(inverted_dict)
+        db = connect_database(self.database_name)
+        self.create_db_inverted_index(db, inverted_dict)

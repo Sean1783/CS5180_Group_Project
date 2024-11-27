@@ -51,10 +51,6 @@ class Crawler:
         return frontier
 
 
-    def is_target_link(self, current_link, link_to_find):
-        return link_to_find in current_link
-
-
     def get_html(self, some_url_link):
         html = None
         try:
@@ -70,6 +66,14 @@ class Crawler:
         return ""
 
 
+    def is_target_link(self, current_link, link_to_find):
+        return link_to_find in current_link
+
+
+    def is_domain_page(self, link):
+        return self.base_url in link
+
+
     def is_department_page(self, link):
         return self.base_url in link
 
@@ -81,6 +85,7 @@ class Crawler:
         doc_obj['is_target'] = is_target
         db_manager.insert_document(doc_obj)
 
+
     def crawl(self, seed_url, db_manager):
         base_frontier = self.generate_new_frontier_urls(seed_url)
         num_targets = 22
@@ -91,24 +96,18 @@ class Crawler:
             if link in visited_urls:
                 continue
             visited_urls.add(link)
-            is_target = self.is_target_link(link, self.target_url)
-            is_department_page = self.is_department_page(link)
-            if is_target:
-                targets_found += 1
-            if is_target or is_department_page:
+            if self.is_domain_page(link):
+                is_target = self.is_target_link(link, self.target_url)
+                if is_target:
+                    targets_found += 1
                 page_html = self.get_html(link)
                 if page_html:
                     self.insert_into_database(db_manager, link, page_html, is_target)
-            if targets_found == num_targets:
-                base_frontier.clear()
-                return
+                if targets_found == num_targets:
+                    base_frontier.clear()
+                    return
             additional_frontier = self.generate_new_frontier_urls(link)
             for next_link in additional_frontier:
                 if next_link not in base_frontier:
                     base_frontier.append(next_link)
 
-
-    def is_target_page(self, link):
-        raw_html = self.get_html(link)
-        if raw_html:
-            pass
