@@ -3,9 +3,11 @@ from project_content_parser import *
 from project_crawler import *
 
 
+# This works to find all professor pages.
 database_name = 'project_db'
-web_crawler_collection_name = 'project_pages'
-professor_info_collection_name = 'project_professors'
+# web_crawler_collection_name = 'project_pages'
+web_crawler_collection_name = 'v2_test_pages'
+# professor_info_collection_name = 'project_professors'
 # seed = 'https://www.cpp.edu/sci/computer-science/'
 seed = 'https://www.cpp.edu/cba/international-business-marketing/index.shtml'
 # base_url = 'https://www.cpp.edu'
