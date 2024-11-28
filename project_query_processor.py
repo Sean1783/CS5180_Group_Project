@@ -6,7 +6,7 @@ from project_indexer import clean_text, connect_database
 class QueryProcessor:
 
     def query(self):
-        query_string = "research interests"
+        query_string = "Salisbury"
         query_string = clean_text(query_string)
         vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 3))
         query_vector = vectorizer.fit([query_string])
