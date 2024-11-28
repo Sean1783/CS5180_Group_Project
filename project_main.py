@@ -1,6 +1,8 @@
 import pprint
 
 from GroupProject.project_query_processor import QueryProcessor
+from GroupProject.utilities import take_user_query_input
+from utilities import clean_text, connect_database, show_formatted_results
 from project_db_manager import DatabaseManager
 from project_content_parser import *
 from project_crawler import *
@@ -17,10 +19,14 @@ target_url = 'https://www.cpp.edu/faculty/'
 
 def query_processor_demo():
     query_processor = QueryProcessor()
-    query_string = "baby formula watchlist exercise community."
-    results = query_processor.query_v2(query_string)
-    ranked_results = query_processor.rank_result(results)
-    query_processor.show_formatted_results(ranked_results)
+    print("Enter \':q\' to quit")
+    while True:
+        query_string = take_user_query_input()
+        if query_string == ':q':
+            break
+        results = query_processor.query_v2(query_string)
+        ranked_results = query_processor.rank_result(results)
+        show_formatted_results(ranked_results)
 
 
 def crawler_demo():
