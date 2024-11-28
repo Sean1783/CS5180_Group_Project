@@ -12,12 +12,13 @@ from nltk.tokenize import word_tokenize
 
 
 def clean_text(some_text):
-    split_text = word_tokenize(some_text)
+    removed_punctuation = re.sub(r'[^\w\s]', '', some_text)
+    split_text = word_tokenize(removed_punctuation)
     stop_words = set(stopwords.words('english'))
     filtered_words = [word for word in split_text if word.lower() not in stop_words]
     text = " ".join(filtered_words).lower().strip()
-    cleaned_string = re.sub(r'[^\w\s]', '', text)
-    cleaned_string = re.sub(r'\n', ' ', cleaned_string)
+    # cleaned_string = re.sub(r'[^\w\s]', '', text)
+    cleaned_string = re.sub(r'\n', ' ', text)
     return cleaned_string
 
 
@@ -73,23 +74,34 @@ class Indexer:
         vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 3))
         tfidf_matrix = vectorizer.fit_transform(master_doc_list)
         terms = vectorizer.get_feature_names_out()
+
+        idf_values = vectorizer.idf_
+        term_idf_map = dict(zip(terms, idf_values))
+
         for doc_idx, url in enumerate(master_url_list):
             tfidf_scores = tfidf_matrix[doc_idx]
             term_scores = zip(terms, tfidf_scores.toarray().flatten())
             for term, score in term_scores:
+                term_index = list(terms).index(term)
+                idf_for_term = idf_values[term_index]
                 if score > 0:
                     if term not in inverted_dict:
-                        inverted_dict[term] = []
-                    inverted_dict[term].append({'url': url, 'tfidf': score})
+                        # inverted_dict[term] = []
+                        inverted_dict[term] = {'idf': term_idf_map[term], 'records': []}
+                    # inverted_dict[term].append({'url': url, 'tfidf': score})
+                    inverted_dict[term]['records'].append({'url': url, 'tfidf': score})
+
         return inverted_dict
 
 
     def create_db_inverted_index(self, database_connection, inverted_dict):
         collection = database_connection[self.index_collection_name]
-        for term, records in inverted_dict.items():
+        # for term, records in inverted_dict.items():
+        for term, data in inverted_dict.items():
             collection.update_one(
                 {'term': term},
-                {'$set': {'records': records}},
+                # {'$set': {'records': records}},
+                {'$set': {'idf': data['idf'], 'records': data['records']}},
                 upsert=True
             )
 

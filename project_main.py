@@ -17,7 +17,10 @@ target_url = 'https://www.cpp.edu/faculty/'
 
 def query_processor_demo():
     query_processor = QueryProcessor()
-    query_processor.query()
+    query_string = "baby formula watchlist exercise community."
+    results = query_processor.query_v2(query_string)
+    ranked_results = query_processor.rank_result(results)
+    query_processor.show_formatted_results(ranked_results)
 
 
 def crawler_demo():
