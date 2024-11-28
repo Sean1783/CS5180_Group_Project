@@ -1,6 +1,5 @@
 from nltk import ngrams
 
-# from project_indexer import clean_text, connect_database
 from utilities import clean_text, connect_database
 
 class QueryProcessor:

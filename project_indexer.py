@@ -11,28 +11,6 @@ from nltk.tokenize import word_tokenize
 from utilities import clean_text, connect_database
 
 
-# def clean_text(some_text):
-#     removed_punctuation = re.sub(r'[^\w\s]', '', some_text)
-#     split_text = word_tokenize(removed_punctuation)
-#     stop_words = set(stopwords.words('english'))
-#     filtered_words = [word for word in split_text if word.lower() not in stop_words]
-#     text = " ".join(filtered_words).lower().strip()
-#     cleaned_string = re.sub(r'\n', ' ', text)
-#     return cleaned_string
-#
-#
-# def connect_database(database_name):
-#     DB_NAME = database_name
-#     DB_HOST = "localhost"
-#     DB_PORT = 27017
-#     try:
-#         client = MongoClient(host=DB_HOST, port=DB_PORT)
-#         db = client[DB_NAME]
-#         return db
-#     except:
-#         print("Database not connected successfully")
-
-
 class Indexer:
     def __init__(self, database_name, corpus_collection_name, index_collection_name):
         self.database_name = database_name
@@ -81,13 +59,9 @@ class Indexer:
             tfidf_scores = tfidf_matrix[doc_idx]
             term_scores = zip(terms, tfidf_scores.toarray().flatten())
             for term, score in term_scores:
-                term_index = list(terms).index(term)
-                idf_for_term = idf_values[term_index]
                 if score > 0:
                     if term not in inverted_dict:
-                        # inverted_dict[term] = []
                         inverted_dict[term] = {'idf': term_idf_map[term], 'records': []}
-                    # inverted_dict[term].append({'url': url, 'tfidf': score})
                     inverted_dict[term]['records'].append({'url': url, 'tfidf': score})
 
         return inverted_dict
@@ -95,7 +69,6 @@ class Indexer:
 
     def create_db_inverted_index(self, database_connection, inverted_dict):
         collection = database_connection[self.index_collection_name]
-        # for term, records in inverted_dict.items():
         for term, data in inverted_dict.items():
             collection.update_one(
                 {'term': term},

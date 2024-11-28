@@ -12,6 +12,7 @@ from project_indexer import Indexer
 # This worked
 database_name = 'project_db'
 corpus_collection_name = 'v2_test_pages'
+# corpus_collection_name = 'v3_test_pages'
 seed = 'https://www.cpp.edu/cba/international-business-marketing/index.shtml'
 base_url = 'https://www.cpp.edu'
 target_url = 'https://www.cpp.edu/faculty/'
@@ -37,12 +38,12 @@ def crawler_demo():
 
 def indexer_demo():
     indexer = Indexer(database_name, corpus_collection_name, 'v2_inverted_index')
-    # target_pages = indexer.get_all_target_pages()
-    # example_text = indexer.get_doc_text(target_pages[4])
+    # indexer = Indexer(database_name, corpus_collection_name, 'v3_inverted_index')
     indexer.generate_complete_inverted_index()
 
 
 if __name__ == "__main__":
-    query_processor_demo()
     # crawler_demo()
     # indexer_demo()
+    query_processor_demo()
+
