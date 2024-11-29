@@ -5,9 +5,11 @@ from bs4 import BeautifulSoup
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from pymongo import MongoClient
+import pickle
 import pprint
 
 BLURP_WIDTH = 3 #how many words before and after query term
+
 
 def clean_text(some_text):
     removed_punctuation = re.sub(r'[^\w\s]', '', some_text)
@@ -18,6 +20,16 @@ def clean_text(some_text):
     cleaned_string = re.sub(r'\n', ' ', text)
     return cleaned_string
 
+
+def remove_nonfeature_words(some_text):
+    terms = {}
+    with open("terms_vocabulary.pkl", "rb") as f:
+        terms = pickle.load(f)
+
+    words = some_text.split()
+    filtered_text = [word for word in words if terms.get(word) is not None]
+    return ' '.join(filtered_text)
+        
 
 def connect_database(database_name):
     DB_NAME = database_name
@@ -52,6 +64,7 @@ def get_blurb(query_string, url, database_name, db_collection_name):
 
     if doc is not None:
         bs = BeautifulSoup(doc['page_html'], 'html.parser')
+    
     for q in q_words:
         surround_regex = rf"(?:\S+\s){{0,{BLURP_WIDTH}}}\b{q}\b(?:\s\S+){{0,{BLURP_WIDTH}}}"
         body_text = bs.find('div', class_='fac-staff').get_text()
@@ -60,7 +73,6 @@ def get_blurb(query_string, url, database_name, db_collection_name):
             combined_blurp += blurp.group() + '...'
         combined_blurp = combined_blurp.replace(u'\xa0', u' ')
     return combined_blurp
-
 
 
 def take_user_query_input():

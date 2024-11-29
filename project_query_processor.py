@@ -1,6 +1,6 @@
 from nltk import ngrams
 
-from utilities import clean_text, connect_database
+from utilities import clean_text, connect_database, remove_nonfeature_words
 
 class QueryProcessor:
 
@@ -37,11 +37,12 @@ class QueryProcessor:
                 return sorted_dict[:result_length]
         return None
 
-
     def query_v2(self, query_string):
         cleaned_string = clean_text(query_string)
-        n_grams = self.make_n_grams(cleaned_string, 3)
-        query_vector = self.generate_term_frequency_pair(n_grams, cleaned_string)
+        filtered_string = remove_nonfeature_words(cleaned_string)
+
+        n_grams = self.make_n_grams(filtered_string, 3)
+        query_vector = self.generate_term_frequency_pair(n_grams, filtered_string)
         db = connect_database('project_db')
         collection = db.v2_inverted_index
         hits = dict()

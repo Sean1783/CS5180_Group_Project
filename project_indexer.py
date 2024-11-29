@@ -7,8 +7,8 @@ from nltk import ngrams
 import re
 import nltk
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from utilities import clean_text, connect_database
+import pickle
 
 
 class Indexer:
@@ -51,6 +51,7 @@ class Indexer:
         vectorizer = TfidfVectorizer(analyzer='word', ngram_range=(1, 3))
         tfidf_matrix = vectorizer.fit_transform(master_doc_list)
         terms = vectorizer.get_feature_names_out()
+        self.save_terms_vocabulary(vectorizer.vocabulary_)
 
         idf_values = vectorizer.idf_
         term_idf_map = dict(zip(terms, idf_values))
@@ -84,3 +85,7 @@ class Indexer:
         inverted_dict = self.create_inverted_index(master_doc_list, master_url_list)
         db = connect_database(self.database_name)
         self.create_db_inverted_index(db, inverted_dict)
+
+    def save_terms_vocabulary(self, terms):
+        with open("terms_vocabulary.pkl", "wb") as f:
+            pickle.dump(terms, f)
