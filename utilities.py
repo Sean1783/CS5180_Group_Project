@@ -13,15 +13,25 @@ BLURP_WIDTH = 3 #how many words before and after query term
 
 
 def clean_text(some_text):
-    removed_punctuation = re.sub(r'[^\w\s]', '', some_text)
-    split_text = word_tokenize(removed_punctuation)
-    stop_words = set(stopwords.words('english'))
-    filtered_words = [word for word in split_text if word.lower() not in stop_words]
-    lemmas = [WordNetLemmatizer().lemmatize(word, pos="n") for word in filtered_words]
+    removed_punctuation = remove_punctuation(some_text)
+    filtered_words = remove_stopwords(removed_punctuation)
+    lemmas = lemmatize(filtered_words)
     text = " ".join(lemmas).lower().strip()
     cleaned_string = re.sub(r'\n', ' ', text)
     return cleaned_string
 
+def remove_punctuation(some_text):
+    return re.sub(r'[^\w\s]', '', some_text)
+
+def remove_stopwords(some_text):
+    split_text = word_tokenize(some_text)
+    stop_words = set(stopwords.words('english'))
+    filtered_words = [word for word in split_text if word.lower() not in stop_words]
+    return filtered_words
+
+def lemmatize(tokens):
+    lemmatizer = WordNetLemmatizer()
+    return [lemmatizer.lemmatize(word, pos="n") for word in tokens]
 
 def remove_nonfeature_words(some_text):
     terms = {}
@@ -70,8 +80,11 @@ def get_blurb(query_string, url, database_name, db_collection_name):
         bs = BeautifulSoup(doc['page_html'], 'html.parser')
     
     blurb = generate_blurb(q_lemmas, bs)
+    if blurb is '':
+        blurb = generate_blurb(q_words, bs)
 
     return blurb
+
 
 def generate_blurb(words, bs):
     combined_blurb = ''
@@ -83,6 +96,7 @@ def generate_blurb(words, bs):
             combined_blurb += blurp.group() + '...'
         combined_blurb = combined_blurb.replace(u'\xa0', u' ')
     return combined_blurb
+
 
 def take_user_query_input():
     query_string = input("Search: ")
