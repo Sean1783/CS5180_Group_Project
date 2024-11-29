@@ -27,7 +27,7 @@ def query_processor_demo():
             break
         results = query_processor.query_v2(query_string)
         ranked_results = query_processor.rank_result(results)
-        show_formatted_results(query_string, ranked_results, database_name)
+        show_formatted_results(query_string, ranked_results, database_name, corpus_collection_name)
 
 
 def crawler_demo():
