@@ -1,7 +1,7 @@
 import pprint
 
-from GroupProject.project_query_processor import QueryProcessor
-from GroupProject.utilities import take_user_query_input
+from project_query_processor import QueryProcessor
+from utilities import take_user_query_input
 from utilities import clean_text, connect_database, show_formatted_results
 from project_db_manager import DatabaseManager
 from project_content_parser import *
@@ -27,7 +27,7 @@ def query_processor_demo():
             break
         results = query_processor.query_v2(query_string)
         ranked_results = query_processor.rank_result(results)
-        show_formatted_results(ranked_results)
+        show_formatted_results(query_string, ranked_results, database_name)
 
 
 def crawler_demo():
@@ -43,7 +43,7 @@ def indexer_demo():
 
 
 if __name__ == "__main__":
-    # crawler_demo()
-    # indexer_demo()
+    #crawler_demo()
+    #indexer_demo()
     query_processor_demo()
 
