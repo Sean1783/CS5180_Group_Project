@@ -1,5 +1,5 @@
 from utilities import clean_text
 
-words = "running flies better"
+words = "businesses"
 #words = ["running", "flies", "better"]
-clean_text(words)
+print(clean_text(words))

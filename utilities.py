@@ -17,9 +17,8 @@ def clean_text(some_text):
     split_text = word_tokenize(removed_punctuation)
     stop_words = set(stopwords.words('english'))
     filtered_words = [word for word in split_text if word.lower() not in stop_words]
-    lemmas = [WordNetLemmatizer().lemmatize(word, pos="v") for word in filtered_words]
-    print(lemmas)
-    text = " ".join(filtered_words).lower().strip()
+    lemmas = [WordNetLemmatizer().lemmatize(word, pos="n") for word in filtered_words]
+    text = " ".join(lemmas).lower().strip()
     cleaned_string = re.sub(r'\n', ' ', text)
     return cleaned_string
 
@@ -59,24 +58,31 @@ def show_formatted_results(query_string, ranked_result_list, database_name, db_c
 
 
 def get_blurb(query_string, url, database_name, db_collection_name):
+    
     q_words = query_string.split()
+    q_lemmas = clean_text(query_string).split()
+
     db = connect_database(database_name)
     col = db[db_collection_name]
     doc = col.find_one({"url": url})
-    combined_blurp = ''
 
     if doc is not None:
         bs = BeautifulSoup(doc['page_html'], 'html.parser')
     
-    for q in q_words:
-        surround_regex = rf"(?:\S+\s){{0,{BLURP_WIDTH}}}\b{q}\b(?:\s\S+){{0,{BLURP_WIDTH}}}"
+    blurb = generate_blurb(q_lemmas, bs)
+
+    return blurb
+
+def generate_blurb(words, bs):
+    combined_blurb = ''
+    for word in words:
+        surround_regex = rf"(?:\S+\s){{0,{BLURP_WIDTH}}}\b{word}\b(?:\s\S+){{0,{BLURP_WIDTH}}}"
         body_text = bs.find('div', class_='fac-staff').get_text()
         blurp = re.search(surround_regex, body_text, flags=re.IGNORECASE)
         if blurp:
-            combined_blurp += blurp.group() + '...'
-        combined_blurp = combined_blurp.replace(u'\xa0', u' ')
-    return combined_blurp
-
+            combined_blurb += blurp.group() + '...'
+        combined_blurb = combined_blurb.replace(u'\xa0', u' ')
+    return combined_blurb
 
 def take_user_query_input():
     query_string = input("Search: ")
