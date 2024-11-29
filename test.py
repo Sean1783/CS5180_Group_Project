@@ -1,5 +1,5 @@
-from utilities import *
+from utilities import clean_text
 
-string1 = "Test St'ring"
-
-print(clean_text(string1))
+words = "running flies better"
+#words = ["running", "flies", "better"]
+clean_text(words)

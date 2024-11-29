@@ -4,6 +4,7 @@ import re
 from bs4 import BeautifulSoup
 from nltk import word_tokenize
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 from pymongo import MongoClient
 import pickle
 import pprint
@@ -16,6 +17,8 @@ def clean_text(some_text):
     split_text = word_tokenize(removed_punctuation)
     stop_words = set(stopwords.words('english'))
     filtered_words = [word for word in split_text if word.lower() not in stop_words]
+    lemmas = [WordNetLemmatizer().lemmatize(word, pos="v") for word in filtered_words]
+    print(lemmas)
     text = " ".join(filtered_words).lower().strip()
     cleaned_string = re.sub(r'\n', ' ', text)
     return cleaned_string
