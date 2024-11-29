@@ -4,8 +4,31 @@ from urllib.request import urlopen
 from urllib.parse import urljoin
 import re
 
+from GroupProject.utilities import fetch_and_parse
+from utilities import get_html
 
 class Parser:
+
+    def get_anchor_tags(self, link_to_visit):
+        bs = fetch_and_parse(link_to_visit)
+        if bs is not None:
+            return bs.find_all('a')
+        else:
+            return []
+
+
+    def is_target_page(self, page_url, target_page_text_flag):
+        raw_html = get_html(page_url)
+        if not raw_html:
+            return False
+        bs = BeautifulSoup(raw_html, 'html.parser')
+        main_tag = bs.find('main')
+        if not main_tag:
+            return False
+        div = main_tag.find('div', class_='fac-info')
+        if div and target_page_text_flag in div.get_text(strip=True):
+            return True
+        return False
 
     # Not used for project.
     def extract_info(self, page_url, db_manager):

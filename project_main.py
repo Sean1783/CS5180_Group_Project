@@ -11,11 +11,25 @@ from project_indexer import Indexer
 
 # This worked
 database_name = 'project_db'
-corpus_collection_name = 'v2_test_pages'
-# corpus_collection_name = 'v3_test_pages'
+# corpus_collection_name = 'v2_test_pages'
+corpus_collection_name = 'v3_test_pages'
+# inverted_index_collection_name = 'v2_inverted_index'
+inverted_index_collection_name = 'v3_inverted_index'
 seed = 'https://www.cpp.edu/cba/international-business-marketing/index.shtml'
 base_url = 'https://www.cpp.edu'
 target_url = 'https://www.cpp.edu/faculty/'
+
+
+def crawler_demo():
+    crawler = Crawler(base_url, target_url)
+    db_manager = DatabaseManager(database_name, corpus_collection_name)
+    target_text_page_flag = "Business"
+    crawler.crawl(seed, db_manager, target_text_page_flag)
+
+
+def indexer_demo():
+    indexer = Indexer(database_name, corpus_collection_name, inverted_index_collection_name)
+    indexer.generate_complete_inverted_index()
 
 
 def query_processor_demo():
@@ -27,19 +41,8 @@ def query_processor_demo():
             break
         results = query_processor.query_v2(query_string)
         ranked_results = query_processor.rank_result(results)
-        show_formatted_results(ranked_results)
-
-
-def crawler_demo():
-    crawler = Crawler(base_url, target_url)
-    db_manager = DatabaseManager(database_name, corpus_collection_name)
-    crawler.crawl(seed, db_manager)
-
-
-def indexer_demo():
-    indexer = Indexer(database_name, corpus_collection_name, 'v2_inverted_index')
-    # indexer = Indexer(database_name, corpus_collection_name, 'v3_inverted_index')
-    indexer.generate_complete_inverted_index()
+        show_formatted_results(ranked_results, query_string, inverted_index_collection_name)
+#         (ranked_result_list, query_string, db_collection_name)
 
 
 if __name__ == "__main__":

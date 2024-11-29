@@ -3,26 +3,19 @@ from urllib.request import urlopen
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
+from GroupProject.utilities import fetch_and_parse
+from project_content_parser import Parser
+
 
 class Crawler:
     def __init__(self, base_url, target_url):
         self.base_url = base_url
         self.target_url = target_url
+        self.parser = Parser()
 
 
     def visit_link_and_gather_anchor_tags(self, link_to_visit):
-        html = None
-        try:
-            with urlopen(link_to_visit) as html:
-                bs = BeautifulSoup(html.read(), 'html.parser')
-                return bs.find_all('a')
-        except HTTPError as e:
-            print(f"HTTP error: {e} " + link_to_visit)
-        except URLError as e:
-            print(f"URL error: {e} " + link_to_visit)
-        except Exception as e:
-            print(f"An unexpected error occurred: {e} " + link_to_visit)
-        return []
+        return self.parser.get_anchor_tags(link_to_visit)
 
 
     def create_list_of_raw_links(self, unfiltered_url_list):
@@ -52,21 +45,14 @@ class Crawler:
 
 
     def get_html(self, some_url_link):
-        html = None
-        try:
-            with urlopen(some_url_link) as html:
-                bs = BeautifulSoup(html.read(), 'html.parser')
-                return bs.prettify()
-        except HTTPError as e:
-            print(f"HTTP error: {e}" + some_url_link)
-        except URLError as e:
-            print(f"URL error: {e}" + some_url_link)
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}" + some_url_link)
-        return ""
+        bs = fetch_and_parse(some_url_link)
+        if bs is not None:
+            return bs.prettify()
+        else:
+            return ""
 
 
-    def is_target_link(self, current_link, link_to_find):
+    def is_target_link_no_parse(self, current_link, link_to_find):
         return link_to_find in current_link
 
 
@@ -86,7 +72,7 @@ class Crawler:
         db_manager.insert_document(doc_obj)
 
 
-    def crawl(self, seed_url, db_manager):
+    def crawl(self, seed_url, db_manager, target_text_page_flag):
         base_frontier = self.generate_new_frontier_urls(seed_url)
         num_targets = 22
         targets_found = 0
@@ -97,7 +83,7 @@ class Crawler:
                 continue
             visited_urls.add(link)
             if self.is_domain_page(link):
-                is_target = self.is_target_link(link, self.target_url)
+                is_target = self.parser.is_target_page(link, target_text_page_flag)
                 if is_target:
                     targets_found += 1
                 page_html = self.get_html(link)
@@ -110,4 +96,3 @@ class Crawler:
             for next_link in additional_frontier:
                 if next_link not in base_frontier:
                     base_frontier.append(next_link)
-
