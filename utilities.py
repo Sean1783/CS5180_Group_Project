@@ -52,7 +52,7 @@ def get_blurb(query_string, url, db_collection_name):
     if doc is not None:
         bs = BeautifulSoup(doc['page_html'], 'html.parser')
     for q in q_words:
-        context_size = 10
+        context_size = 3
         surround_regex = rf"(?:\S+\s){{0,{context_size}}}\b{q}\b(?:\s\S+){{0,{context_size}}}"
         body_text = bs.find('div', class_='fac-staff').get_text()
         blurp = re.search(surround_regex, body_text, flags=re.IGNORECASE)
