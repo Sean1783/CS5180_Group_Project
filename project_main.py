@@ -41,8 +41,7 @@ def query_processor_demo():
             break
         results = query_processor.query_v2(query_string)
         ranked_results = query_processor.rank_result(results)
-        show_formatted_results(ranked_results, query_string, inverted_index_collection_name)
-#         (ranked_result_list, query_string, db_collection_name)
+        show_formatted_results(query_string, ranked_results, database_name, corpus_collection_name)
 
 
 if __name__ == "__main__":
