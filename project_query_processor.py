@@ -41,10 +41,13 @@ class QueryProcessor:
 
 
     def get_magnitude_of_doc_vector(self, doc_vector):
-        sum = 0
-        for value in doc_vector:
-           sum = sum + value**2
-        return math.sqrt(sum)
+        value = 0
+        for element in doc_vector:
+            if 'tfidf' in element:
+                value = value + element['tfidf']**2
+            elif 'tf' in element:
+                value = value + element['tf']**2
+        return math.sqrt(value)
 
 
     def query_v2(self, query_string):
@@ -54,16 +57,18 @@ class QueryProcessor:
         db = connect_database('project_db')
         collection = db.v2_inverted_index
         hits = dict()
-
-        query_vector_magnitude = self.get_magnitude_of_doc_vector(query_vector)
+        query_magnitude =  self.get_magnitude_of_doc_vector(query_vector)
         for n_gram_term in query_vector:
             result = collection.find_one({'term': n_gram_term['term']})
             if result is not None:
+                doc_magnitude = self.get_magnitude_of_doc_vector(result['records'])
+                product_of_magnitude = doc_magnitude * query_magnitude
                 for doc in result['records']:
                     url = doc['url']
                     score = doc['tfidf'] * (n_gram_term['tf'] * result['idf'])
+                    normalized_score = score / product_of_magnitude if product_of_magnitude != 0 else 0
                     if url in hits:
-                        hits[url] += score
+                        hits[url] += normalized_score
                     else:
-                        hits[url] = score
+                        hits[url] = normalized_score
         return hits
