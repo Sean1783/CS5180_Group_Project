@@ -69,6 +69,8 @@ def generate_blurb(words, bs):
         if blurp:
             combined_blurb += blurp.group() + '...'
         combined_blurb = combined_blurb.replace(u'\xa0', u' ')
+        bolded_word = '\033[1m' + word + '\033[0m'
+        combined_blurb = combined_blurb.replace(word, bolded_word)
     return combined_blurb
 
 
@@ -88,7 +90,7 @@ def show_formatted_results(query_string, ranked_result_list, database_name, db_c
         for key, value in ranked_result_list:
             blurb = get_blurb(query_string, key, database_name, db_collection_name)
             print('(', rank, ') :', key)
-            pprint.pprint(blurb)
+            print('...', blurb)
             rank += 1
     else:
         print("Search did not return any results")

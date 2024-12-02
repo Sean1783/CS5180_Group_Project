@@ -10,7 +10,6 @@ from project_crawler import *
 from project_indexer import Indexer
 
 
-# This worked
 database_name = 'project_db'
 # corpus_collection_name = 'v2_test_pages'
 corpus_collection_name = 'v3_test_pages'
