@@ -1,4 +1,5 @@
 import pprint
+import time
 
 from GroupProject.project_query_processor import QueryProcessor
 from GroupProject.utilities import take_user_query_input
@@ -17,11 +18,10 @@ corpus_collection_name = 'v3_test_pages'
 inverted_index_collection_name = 'v3_inverted_index'
 seed = 'https://www.cpp.edu/cba/international-business-marketing/index.shtml'
 base_url = 'https://www.cpp.edu'
-target_url = 'https://www.cpp.edu/faculty/'
 
 
 def crawler_demo():
-    crawler = Crawler(base_url, target_url)
+    crawler = Crawler(base_url)
     db_manager = DatabaseManager(database_name, corpus_collection_name)
     target_text_page_flag = "Business"
     crawler.crawl(seed, db_manager, target_text_page_flag)
@@ -33,7 +33,7 @@ def indexer_demo():
 
 
 def query_processor_demo():
-    query_processor = QueryProcessor()
+    query_processor = QueryProcessor(database_name, inverted_index_collection_name)
     print("Enter \':q\' to quit")
     while True:
         query_string = take_user_query_input()
@@ -45,7 +45,12 @@ def query_processor_demo():
 
 
 if __name__ == "__main__":
-    # crawler_demo()
-    # indexer_demo()
+    start_crawler_time = time.time()
+    crawler_demo()
+    end_crawler_time = time.time()
+    print('crawler elapsed time:', end_crawler_time - start_crawler_time)
+    indexer_demo()
+    end_indexer_time = time.time()
+    print('indexer elapsed time:', end_indexer_time - end_crawler_time)
     query_processor_demo()
 

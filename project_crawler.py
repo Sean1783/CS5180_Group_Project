@@ -8,9 +8,8 @@ from project_content_parser import Parser
 
 
 class Crawler:
-    def __init__(self, base_url, target_url):
+    def __init__(self, base_url):
         self.base_url = base_url
-        self.target_url = target_url
         self.parser = Parser()
 
 

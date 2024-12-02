@@ -20,7 +20,7 @@ class Indexer:
 
     def get_all_target_pages(self):
         db = connect_database(self.database_name)
-        collection = db.v2_test_pages
+        collection = db[self.corpus_collection_name]
         corpus = collection.find({"is_target": True})
         return corpus
 
@@ -59,7 +59,6 @@ class Indexer:
                     if term not in inverted_dict:
                         inverted_dict[term] = {'idf': term_idf_map[term], 'records': []}
                     inverted_dict[term]['records'].append({'url': url, 'tfidf': score})
-
         return inverted_dict
 
 

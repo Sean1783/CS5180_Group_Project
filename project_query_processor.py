@@ -5,6 +5,10 @@ from nltk import ngrams
 from utilities import clean_text, connect_database
 
 class QueryProcessor:
+    def __init__(self, db_name, db_collection_name):
+        self.db_name = db_name
+        self.db_collection_name = db_collection_name
+
 
     def make_n_grams(self, cleaned_text, n):
         consolidated_n_grams = list()
@@ -54,8 +58,8 @@ class QueryProcessor:
         cleaned_string = clean_text(query_string)
         n_grams = self.make_n_grams(cleaned_string, 3)
         query_vector = self.generate_term_frequency_pair(n_grams, cleaned_string)
-        db = connect_database('project_db')
-        collection = db.v2_inverted_index
+        db = connect_database(self.db_name)
+        collection = db[self.db_collection_name]
         hits = dict()
         query_magnitude =  self.get_magnitude_of_doc_vector(query_vector)
         for n_gram_term in query_vector:
