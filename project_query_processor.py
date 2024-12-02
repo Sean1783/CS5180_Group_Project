@@ -1,3 +1,5 @@
+import math
+
 from nltk import ngrams
 
 from utilities import clean_text, connect_database
@@ -38,6 +40,13 @@ class QueryProcessor:
         return None
 
 
+    def get_magnitude_of_doc_vector(self, doc_vector):
+        sum = 0
+        for value in doc_vector:
+           sum = sum + value**2
+        return math.sqrt(sum)
+
+
     def query_v2(self, query_string):
         cleaned_string = clean_text(query_string)
         n_grams = self.make_n_grams(cleaned_string, 3)
@@ -45,6 +54,8 @@ class QueryProcessor:
         db = connect_database('project_db')
         collection = db.v2_inverted_index
         hits = dict()
+
+        query_vector_magnitude = self.get_magnitude_of_doc_vector(query_vector)
         for n_gram_term in query_vector:
             result = collection.find_one({'term': n_gram_term['term']})
             if result is not None:
